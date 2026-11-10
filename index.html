@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>편의점 타이쿤</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #edf2f7; font-family: Arial, sans-serif; color: #263238; }
+header { background: #168b62; color: white; padding: 22px; text-align: center; }
+main { max-width: 650px; margin: 20px auto; padding: 15px; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.card { background: white; padding: 18px; border-radius: 15px; box-shadow: 0 3px 10px #0001; }
+.number { font-size: 25px; font-weight: bold; margin-top: 8px; }
+.store { margin-top: 15px; text-align: center; padding: 35px 10px; background: #d9f4e6; border-radius: 18px; }
+.store .emoji { font-size: 75px; }
+button { border: 0; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: bold; cursor: pointer; background: #168b62; color: white; width: 100%; margin-top: 9px; }
+button:disabled { background: #aaa; cursor: not-allowed; }
+h2 { margin-top: 25px; }
+#log { background: white; padding: 15px; border-radius: 12px; min-height: 50px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏪 편의점 타이쿤</h1>
+  <p>전국 최고의 편의점을 만들어라!</p>
+</header>
+<main>
+  <div class="stats">
+    <div class="card">💰 보유 자금<div class="number" id="money">1,000원</div></div>
+    <div class="card">📦 재고<div class="number" id="stock">10개</div></div>
+    <div class="card">⭐ 매장 레벨<div class="number" id="level">1</div></div>
+    <div class="card">🧑 누적 손님<div class="number" id="customers">0명</div></div>
+  </div>
+  <div class="store">
+    <div class="emoji">🏪</div>
+    <h2>우리 동네 편의점</h2>
+    <p id="status">영업 중입니다!</p>
+  </div>
+  <h2>🛒 영업 관리</h2>
+  <button onclick="sell()">손님에게 판매하기 (+100원)</button>
+  <button onclick="buy()">상품 10개 구매하기 (-300원)</button>
+  <button onclick="upgrade()">매장 업그레이드 (-2,000원)</button>
+  <h2>📢 매장 소식</h2>
+  <div id="log">편의점이 문을 열었습니다!</div>
+  <h2>🎯 목표</h2>
+  <div class="card">레벨 10 달성하기!<p id="goal">현재 레벨: 1 / 10</p></div>
+</main>
+<script>
+let money = 1000;
+let stock = 10;
+let level = 1;
+let customers = 0;
+
+function update() {
+  document.getElementById("money").textContent = money.toLocaleString() + "원";
+  document.getElementById("stock").textContent = stock + "개";
+  document.getElementById("level").textContent = level;
+  document.getElementById("customers").textContent = customers + "명";
+  document.getElementById("goal").textContent = "현재 레벨: " + level + " / 10";
+  document.querySelectorAll("button")[1].disabled = money < 300;
+  document.querySelectorAll("button")[2].disabled = money < 2000 || level >= 10;
+  document.getElementById("status").textContent = level >= 10 ? "🏆 전국 최고의 편의점!" : "영업 중입니다!";
+}
+
+function message(msg) {
+  document.getElementById("log").textContent = msg;
+}
+
+function sell() {
+  if (stock <= 0) {
+    message("재고가 부족합니다! 상품을 구매하세요.");
+    return;
+  }
+  stock--;
+  customers++;
+  const profit = 100 + (level - 1) * 50;
+  money += profit;
+  message("손님에게 판매 완료! +" + profit + "원");
+  update();
+}
+
+function buy() {
+  if (money < 300) return;
+  money -= 300;
+  stock += 10;
+  message("상품 10개를 구매했습니다!");
+  update();
+}
+
+function upgrade() {
+  if (money < 2000 || level >= 10) return;
+  money -= 2000;
+  level++;
+  message("🎉 매장 업그레이드 성공! 판매 수익 증가!");
+  update();
+}
+
+// 5초마다 자동으로 손님이 방문합니다.
+setInterval(() => {
+  if (stock > 0) {
+    stock--;
+    customers++;
+    const profit = 100 + (level - 1) * 50;
+    money += profit;
+    message("자동 손님 방문! +" + profit + "원");
+    update();
+  }
+}, 5000);
+
+update();
+</script>
+</body>
+</html>
