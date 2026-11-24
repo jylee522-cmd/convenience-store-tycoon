@@ -3,555 +3,507 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>슈퍼마켓 타이쿤 3D</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D 편의점 타이쿤</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;overflow:hidden;background:#111;color:white;font-family:Arial,sans-serif}
-canvas{display:block}
-#hud{position:fixed;inset:0;pointer-events:none}
-.top{display:flex;gap:10px;padding:14px;flex-wrap:wrap}
-.stat{background:#10251fe8;padding:10px 14px;border-radius:12px;font-weight:bold}
-.stat span{color:#ffe082}
-#cross{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:25px}
-#hint{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);background:#10251fee;padding:13px 20px;border-radius:12px;text-align:center}
-#help{position:absolute;right:12px;bottom:15px;background:#10251fee;padding:12px;border-radius:12px;font-size:12px;line-height:1.8}
-#toast{position:absolute;top:90px;left:50%;transform:translateX(-50%);background:#10251fee;padding:12px;border-radius:12px;opacity:0}
-#toast.show{opacity:1}
-#start,#computer{position:fixed;inset:0;background:#07110fdd;display:flex;align-items:center;justify-content:center;z-index:5}
-#computer{display:none}
-.modal{background:#172923;padding:25px;border-radius:18px;width:min(550px,92vw)}
-button{background:#168b62;color:white;border:0;padding:12px;border-radius:10px;font-weight:bold;cursor:pointer}
-#start button{width:100%;margin-top:15px}
-.upgrades{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.up{background:#294338;padding:12px;border-radius:12px}
-.up button{width:100%;margin-top:8px}
-.muted{color:#b9cec4;font-size:13px;line-height:1.7}
-@media(max-width:650px){#help{display:none}.upgrades{grid-template-columns:1fr}}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+  background:#111;
+  color:white;
+}
+#hud {
+  position:fixed;
+  top:15px;
+  left:15px;
+  z-index:5;
+  background:#111d;
+  padding:14px;
+  border-radius:12px;
+  line-height:1.8;
+}
+#message {
+  position:fixed;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#111e;
+  padding:14px 22px;
+  border-radius:10px;
+  z-index:5;
+  min-width:240px;
+  text-align:center;
+}
+#crosshair {
+  position:fixed;
+  top:50%;
+  left:50%;
+  width:10px;
+  height:10px;
+  border:2px solid white;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  z-index:4;
+}
+#help {
+  position:fixed;
+  bottom:15px;
+  left:15px;
+  background:#111c;
+  padding:10px;
+  border-radius:8px;
+  z-index:5;
+  font-size:13px;
+}
+#start {
+  position:fixed;
+  inset:0;
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:#101820;
+  text-align:center;
+}
+button {
+  padding:14px 30px;
+  border:0;
+  border-radius:9px;
+  background:#16a36a;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:17px;
+}
+#terminal {
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:5;
+  width:190px;
+  background:#222;
+  border:4px solid #555;
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+}
+#terminalScreen {
+  background:#9bdda5;
+  color:#102b18;
+  min-height:65px;
+  padding:10px;
+  border-radius:5px;
+  font-weight:bold;
+  margin-bottom:10px;
+}
 </style>
 </head>
 <body>
 
-<div id="hud">
- <div class="top">
-  <div class="stat">💰 돈 <span id="money">15000</span>원</div>
-  <div class="stat">⭐ 레벨 <span id="level">1</span></div>
-  <div class="stat">📦 재고 <span id="stock">12</span></div>
-  <div class="stat">🧑 손님 <span id="customers">0</span></div>
- </div>
- <div id="cross">＋</div>
- <div id="toast"></div>
- <div id="hint">WASD 이동 · 마우스로 둘러보기</div>
- <div id="help">
-  WASD : 이동<br>
-  마우스 : 시점 조작<br>
-  E : 상호작용 / 상품 집기<br>
-  왼쪽 클릭 : 상품 내려놓기<br>
-  ESC : 마우스 잠금 해제
- </div>
-</div>
-
 <div id="start">
- <div class="modal">
-  <h1>🏪 슈퍼마켓 타이쿤 3D</h1>
-  <p class="muted">
-   나만의 슈퍼마켓을 운영해 보자!<br>
-   상품을 집고, 진열하고, 손님에게 판매해 봐.
-  </p>
-  <button id="startBtn">게임 시작</button>
- </div>
+  <h1>🏪 3D 편의점 타이쿤</h1>
+  <p>직접 편의점을 운영하고 손님을 계산해 주세요!</p>
+  <button id="startButton">게임 시작</button>
+  <p>WASD 이동 / 마우스 시점 / E 상호작용</p>
 </div>
 
-<div id="computer">
- <div class="modal">
-  <h2>💻 창고 업그레이드 컴퓨터</h2>
-  <p class="muted" id="upgradeInfo">원하는 업그레이드를 선택해!</p>
-  <div class="upgrades">
-   <div class="up">
-    <b>🏬 매장 확장</b>
-    <p class="muted">판매 수익 증가</p>
-    5,000원
-    <button onclick="upgrade('expand',5000)">구매</button>
-   </div>
-   <div class="up">
-    <b>🗄️ 진열대 추가</b>
-    <p class="muted">재고 10개 증가</p>
-    3,000원
-    <button onclick="upgrade('shelf',3000)">구매</button>
-   </div>
-   <div class="up">
-    <b>🤖 자동 계산대</b>
-    <p class="muted">자동 판매 보너스</p>
-    4,000원
-    <button onclick="upgrade('auto',4000)">구매</button>
-   </div>
-   <div class="up">
-    <b>🧑‍💼 직원 고용</b>
-    <p class="muted">직원이 자동으로 판매</p>
-    6,000원
-    <button onclick="upgrade('staff',6000)">구매</button>
-   </div>
-  </div>
-  <button onclick="closeComputer()" style="margin-top:15px">닫기</button>
- </div>
+<div id="hud">
+  💰 잔액: <span id="money">50000</span>원<br>
+  🛒 판매 상품: <span id="sold">0</span>개<br>
+  👥 손님: <span id="customers">0</span>명
+</div>
+
+<div id="crosshair"></div>
+<div id="message">게임을 시작해 주세요.</div>
+
+<div id="help">
+  WASD 이동 | 마우스 시점<br>
+  E 상호작용 | ESC 마우스 해제
+</div>
+
+<div id="terminal">
+  <div>💳 CARD TERMINAL</div>
+  <div id="terminalScreen">결제 대기 중</div>
 </div>
 
 <script type="module">
 import * as THREE from
 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
-// 기본 3D 설정
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x9bc8db);
-scene.fog = new THREE.Fog(0x9bc8db,25,50);
+scene.background = new THREE.Color(0x9bc8e8);
+scene.fog = new THREE.Fog(0x9bc8e8, 15, 45);
 
 const camera = new THREE.PerspectiveCamera(
- 75,innerWidth/innerHeight,0.1,100
+  75, innerWidth/innerHeight, 0.1, 1000
 );
-camera.position.set(0,1.7,8);
+camera.position.set(0,1.7,7);
 
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-document.body.prepend(renderer.domElement);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
 
-// 조명
-scene.add(new THREE.HemisphereLight(0xffffff,0x667766,2));
+scene.add(new THREE.HemisphereLight(0xffffff,0x667788,2));
 
-const sun=new THREE.DirectionalLight(0xffffff,2);
-sun.position.set(-7,13,8);
-sun.castShadow=true;
+const sun = new THREE.DirectionalLight(0xffffff,2);
+sun.position.set(5,10,5);
+sun.castShadow = true;
 scene.add(sun);
 
-// 재질과 오브젝트 생성
-function material(color){
- return new THREE.MeshStandardMaterial({color,roughness:.8});
+const materials = {
+  floor:new THREE.MeshStandardMaterial({color:0xb9b9b9}),
+  wall:new THREE.MeshStandardMaterial({color:0xf1eee5}),
+  shelf:new THREE.MeshStandardMaterial({color:0x8b542e}),
+  counter:new THREE.MeshStandardMaterial({color:0x383838}),
+  red:new THREE.MeshStandardMaterial({color:0xd94343}),
+  blue:new THREE.MeshStandardMaterial({color:0x2876d2}),
+  green:new THREE.MeshStandardMaterial({color:0x32a65b}),
+  yellow:new THREE.MeshStandardMaterial({color:0xf1c232})
+};
+
+function cube(x,y,z,w,h,d,mat) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),mat
+  );
+  mesh.position.set(x,y,z);
+  mesh.castShadow=true;
+  mesh.receiveShadow=true;
+  scene.add(mesh);
+  return mesh;
 }
 
-function box(w,h,d,color,x,y,z){
- const obj=new THREE.Mesh(
-  new THREE.BoxGeometry(w,h,d),
-  material(color)
- );
- obj.position.set(x,y,z);
- obj.castShadow=true;
- obj.receiveShadow=true;
- scene.add(obj);
- return obj;
+// 바닥
+cube(0,-0.15,0,20,0.3,20,materials.floor);
+
+// 벽
+cube(0,2,-10,20,4,0.3,materials.wall);
+cube(-10,2,0,0.3,4,20,materials.wall);
+cube(10,2,0,0.3,4,20,materials.wall);
+
+// 천장 조명
+for(let x=-6;x<=6;x+=4){
+  const light=new THREE.PointLight(0xffffff,35,10);
+  light.position.set(x,3.7,0);
+  scene.add(light);
+  cube(x,3.9,0,1.5,0.08,0.5,
+    new THREE.MeshStandardMaterial({color:0xffffff}));
 }
 
-// 매장 바닥과 벽
-box(24,.3,22,0xd7d1bf,0,-.18,0);
-box(24,7,.3,0xe9eee9,0,3.3,-11);
-box(.3,7,22,0xe9eee9,-12,3.3,0);
-box(.3,7,22,0xe9eee9,12,3.3,0);
-box(24,.2,22,0xf1f1eb,0,6.7,0);
+// 선반 만들기
+const products=[];
+const productColors=[materials.red,materials.blue,
+  materials.green,materials.yellow];
 
-// 매장 간판
-box(5,1,0.2,0x168b62,0,5.1,-10.7);
+for(let z=-5;z<=2;z+=3){
+  cube(-3,0.9,z,1.5,1.8,2,materials.shelf);
+  cube(-3,1.5,z,1.6,0.08,2.1,materials.counter);
+  cube(-3,0.9,z,1.6,0.08,2.1,materials.counter);
+
+  for(let i=0;i<4;i++){
+    const p=cube(
+      -3.4+(i%2)*0.7,
+      1.05+Math.floor(i/2)*0.55,
+      z-0.45,
+      0.35,0.4,0.35,
+      productColors[i]
+    );
+    products.push(p);
+  }
+}
 
 // 계산대
-box(3.4,1.05,1.2,0x956b45,0,.53,5);
-box(1.1,.55,.15,0x222b30,0,1.35,4.4);
-box(.8,.35,.03,0x55c6a1,0,1.4,4.3);
+cube(1,0.55,-3,3,1.1,1.5,materials.counter);
 
-// 진열대
-const products=[];
+// 스캐너
+const scanner=cube(1,1.15,-3,0.55,0.15,0.5,
+  new THREE.MeshStandardMaterial({color:0x222222}));
 
-function makeShelf(x,z){
- box(3.3,.15,.8,0x66777a,x,.18,z);
- box(3.3,.15,.8,0x66777a,x,1.05,z);
- box(3.3,.15,.8,0x66777a,x,2,z);
+// 카드 단말기
+const terminal=cube(2,1.1,-3,0.55,0.25,0.5,
+  new THREE.MeshStandardMaterial({color:0x171717}));
 
- const colors=[
-  0xe65b3d,0xf0bd37,0x48a8d5,
-  0x83bd62,0xc47acb,0xf28c45
- ];
+// 카드 삽입구
+cube(2,1.24,-3.05,0.25,0.02,0.03,
+  new THREE.MeshStandardMaterial({color:0xaaaaaa}));
 
- for(let row=0;row<3;row++){
-  for(let i=0;i<7;i++){
-   const color=colors[(i+row)%colors.length];
-   const p=box(
-    .28,.42,.25,color,
-    x-1.35+i*.45,
-    .4+row*.84,
-    z-.08
-   );
-   p.userData.isProduct=true;
-   p.userData.onShelf=true;
-   products.push(p);
-  }
- }
+// 창고
+cube(7,1,-7,2,2,2,materials.shelf);
+
+// 출입문 표시
+cube(0,1.5,9.8,3,3,0.15,
+  new THREE.MeshStandardMaterial({
+    color:0x5b9ebc,transparent:true,opacity:0.5
+  }));
+
+// 플레이어
+const player={
+  position:new THREE.Vector3(0,1.7,7),
+  yaw:0,
+  pitch:0
+};
+
+camera.position.copy(player.position);
+
+const keys={};
+let money=50000;
+let sold=0;
+let customers=[];
+let currentCustomer=null;
+let scanned=0;
+let total=0;
+let gameStarted=false;
+let busy=false;
+
+const moneyUI=document.getElementById('money');
+const soldUI=document.getElementById('sold');
+const customerUI=document.getElementById('customers');
+const message=document.getElementById('message');
+const terminalScreen=document.getElementById('terminalScreen');
+
+function say(text){
+  message.textContent=text;
 }
 
-makeShelf(-6,-5);
-makeShelf(6,-5);
-makeShelf(-6,0);
-makeShelf(6,0);
+function updateHUD(){
+  moneyUI.textContent=money.toLocaleString();
+  soldUI.textContent=sold;
+  customerUI.textContent=customers.length;
+}
 
-// 창고와 컴퓨터
-box(3.5,3.5,.2,0x53675d,8.5,1.75,-10.7);
-box(1.7,.12,.8,0x956b45,8.5,1.3,-9.6);
-box(1.3,1.1,.15,0x222b30,8.5,2.5,-9.5);
-box(1.05,.7,.04,0x55baca,8.5,2.5,-9.4);
+function makeCustomer(){
+  if(customers.length>=2) return;
 
-// 창고 표시
-box(2.8,.5,.15,0x168b62,8.5,4.1,-10.5);
-
-// 손님 캐릭터
-const customers3d=[];
-
-function createCustomer(x,z){
- const group=new THREE.Group();
-
- const body=new THREE.Mesh(
-  new THREE.CylinderGeometry(.28,.34,.85,8),
-  material(0x385f9b)
- );
- body.position.y=1.05;
- group.add(body);
-
- const head=new THREE.Mesh(
-  new THREE.SphereGeometry(.23,12,10),
-  material(0xe8b995)
- );
- head.position.y=1.65;
- group.add(head);
-
- const legs=[];
- for(const side of [-1,1]){
-  const leg=new THREE.Mesh(
-   new THREE.BoxGeometry(.15,.55,.18),
-   material(0x252a31)
+  const group=new THREE.Group();
+  const body=new THREE.Mesh(
+    new THREE.CylinderGeometry(0.28,0.35,1,8),
+    new THREE.MeshStandardMaterial({color:0x2678bd})
   );
-  leg.position.set(side*.13,.35,0);
-  group.add(leg);
-  legs.push(leg);
- }
+  body.position.y=0.85;
+  group.add(body);
 
- group.position.set(x,0,z);
- scene.add(group);
+  const head=new THREE.Mesh(
+    new THREE.SphereGeometry(0.23,12,12),
+    new THREE.MeshStandardMaterial({color:0xffcc99})
+  );
+  head.position.y=1.5;
+  group.add(head);
 
- return {
-  group,legs,
-  target:new THREE.Vector3(0,0,4),
-  phase:Math.random()*6,
-  speed:1.2
- };
+  group.position.set(
+    Math.random()*2-1,0,8
+  );
+  scene.add(group);
+
+  customers.push({
+    group,
+    state:'enter',
+    count:Math.floor(Math.random()*3)+1
+  });
+  updateHUD();
 }
 
 function spawnCustomer(){
- if(customers3d.length>=5)return;
- const c=createCustomer(-8+Math.random()*16,-9);
- c.target.set(Math.random()>.5?5:-5,0,-2);
- customers3d.push(c);
-
- setTimeout(()=>{
-  c.target.set(0,0,3.5);
- },3500);
+  if(!gameStarted) return;
+  makeCustomer();
 }
 
-// 게임 상태
-let money=15000;
-let level=1;
-let stock=12;
-let served=0;
-let bonus=0;
-let autoBonus=0;
-let staff=false;
-let held=null;
-let computerOpen=false;
-
-function update(){
- document.getElementById('money').textContent=
- money.toLocaleString();
- document.getElementById('level').textContent=level;
- document.getElementById('stock').textContent=stock;
- document.getElementById('customers').textContent=served;
+function activeCustomer(){
+  return customers.find(c=>c.state==='checkout');
 }
 
-function toast(message){
- const el=document.getElementById('toast');
- el.textContent=message;
- el.classList.add('show');
- setTimeout(()=>el.classList.remove('show'),2000);
-}
+function scanProduct(){
+  if(!currentCustomer || busy) return;
 
-// 이동과 시점 조작
-const keys={};
-let yaw=0;
-let pitch=0;
-let locked=false;
-
-function requestLock(){
- renderer.domElement.requestPointerLock();
-}
-
-document.getElementById('startBtn').onclick=()=>{
- document.getElementById('start').style.display='none';
- requestLock();
- toast('매장에 도착했어!');
-};
-
-document.addEventListener('pointerlockchange',()=>{
- locked=document.pointerLockElement===renderer.domElement;
-});
-
-document.addEventListener('mousemove',e=>{
- if(!locked)return;
- yaw-=e.movementX*.002;
- pitch-=e.movementY*.002;
- pitch=Math.max(-1.2,Math.min(1.2,pitch));
-});
-
-document.addEventListener('keydown',e=>{
- keys[e.key.toLowerCase()]=true;
-
- if(e.key.toLowerCase()==='e')interact();
-});
-
-document.addEventListener('keyup',e=>{
- keys[e.key.toLowerCase()]=false;
-});
-
-// 상품 집기
-function nearestProduct(){
- let best=null;
- let distance=2.3;
-
- for(const p of products){
-  if(!p.userData.onShelf)continue;
-
-  const d=p.position.distanceTo(camera.position);
-
-  if(d<distance){
-   distance=d;
-   best=p;
+  if(scanned>=currentCustomer.count){
+    say('모든 상품을 스캔했어요. 결제를 진행하세요.');
+    return;
   }
- }
- return best;
+
+  scanned++;
+  total+=Math.floor(Math.random()*3000)+1000;
+
+  terminalScreen.innerHTML=
+    '상품 '+scanned+'개<br>'+total.toLocaleString()+'원';
+
+  say('삑! 상품을 스캔했습니다. ('+
+    scanned+'/'+currentCustomer.count+')');
 }
 
-function forward(){
- return new THREE.Vector3(
-  -Math.sin(yaw),0,-Math.cos(yaw)
- );
+function pay(){
+  if(!currentCustomer || busy) return;
+
+  if(scanned<currentCustomer.count){
+    say('아직 스캔하지 않은 상품이 있어요!');
+    return;
+  }
+
+  busy=true;
+  terminalScreen.textContent='카드 삽입 중...';
+
+  // 손님이 단말기에 카드를 꽂는 연출
+  const card=cube(2,1.35,-3,
+    0.25,0.03,0.35,
+    new THREE.MeshStandardMaterial({color:0x2859c7})
+  );
+
+  let step=0;
+  const interval=setInterval(()=>{
+    step++;
+    card.position.y-=0.045;
+    if(step>=5){
+      clearInterval(interval);
+      scene.remove(card);
+      terminalScreen.textContent='승인 중...';
+
+      setTimeout(()=>{
+        money+=total;
+        sold+=scanned;
+        updateHUD();
+        terminalScreen.textContent='결제 완료!';
+        say('결제 성공! +'+total.toLocaleString()+'원');
+
+        currentCustomer.state='leave';
+        currentCustomer=null;
+        scanned=0;
+        total=0;
+        busy=false;
+
+        setTimeout(()=>{
+          terminalScreen.textContent='결제 대기 중';
+        },2000);
+      },1800);
+    }
+  },100);
 }
 
 function interact(){
- if(computerOpen)return;
+  if(busy) return;
 
- const pos=camera.position;
+  const customer=activeCustomer();
 
- // 컴퓨터
- if(pos.distanceTo(new THREE.Vector3(8.5,1.7,-9.5))<3.5){
-  openComputer();
-  return;
- }
-
- // 계산대
- if(pos.distanceTo(new THREE.Vector3(0,1.5,4.5))<3.2){
-  checkout();
-  return;
- }
-
- // 상품 집기
- if(!held){
-  const p=nearestProduct();
-
-  if(p){
-   held=p;
-   p.userData.onShelf=false;
-   toast('상품을 집었어! 계산대로 가져가!');
-   return;
+  if(customer){
+    if(scanned<customer.count){
+      scanProduct();
+    }else{
+      pay();
+    }
+    return;
   }
- }
 
- toast('가까이 가서 상호작용해!');
+  say('계산대 근처에서 손님을 기다려 주세요.');
 }
 
-// 상품 내려놓기
-renderer.domElement.addEventListener('click',()=>{
- if(!locked&&!computerOpen&&
- document.getElementById('start').style.display==='none'){
-  requestLock();
-  return;
- }
+document.addEventListener('keydown',e=>{
+  keys[e.key.toLowerCase()]=true;
 
- if(held){
-  held.position.copy(camera.position)
-   .add(forward().multiplyScalar(1.5));
-  held.position.y=.5;
-  held=null;
-  toast('상품을 내려놓았어!');
- }
+  if(e.key.toLowerCase()==='e'){
+    interact();
+  }
+
+  if(e.key.toLowerCase()==='f'){
+    scanProduct();
+  }
+
+  if(e.key.toLowerCase()==='g'){
+    pay();
+  }
 });
 
-// 결제
-function checkout(){
- if(!held){
-  toast('먼저 상품을 집어 와!');
-  return;
- }
+document.addEventListener('keyup',e=>{
+  keys[e.key.toLowerCase()]=false;
+});
 
- if(stock<=0){
-  toast('재고가 부족해!');
-  return;
- }
+// 마우스 시점
+document.addEventListener('mousemove',e=>{
+  if(document.pointerLockElement!==renderer.domElement) return;
 
- scene.remove(held);
- held=null;
+  player.yaw-=e.movementX*0.002;
+  player.pitch-=e.movementY*0.002;
+  player.pitch=Math.max(-1.3,Math.min(1.3,player.pitch));
+});
 
- stock--;
- served++;
+renderer.domElement.addEventListener('click',()=>{
+  if(gameStarted && !document.pointerLockElement){
+    renderer.domElement.requestPointerLock();
+  }
+});
 
- const gain=1800+bonus;
- money+=gain;
+document.getElementById('startButton').onclick=()=>{
+  document.getElementById('start').style.display='none';
+  gameStarted=true;
+  renderer.domElement.requestPointerLock();
+  say('편의점 운영을 시작합니다!');
+  makeCustomer();
+  setInterval(spawnCustomer,9000);
+};
 
- update();
- toast('결제 완료! +'+gain.toLocaleString()+'원');
-
- spawnCustomer();
-}
-
-// 컴퓨터 업그레이드
-function openComputer(){
- computerOpen=true;
- document.getElementById('computer').style.display='flex';
- document.exitPointerLock();
- document.getElementById('upgradeInfo').textContent=
- '현재 잔액: '+money.toLocaleString()+'원';
-}
-
-function closeComputer(){
- computerOpen=false;
- document.getElementById('computer').style.display='none';
- requestLock();
-}
-
-function upgrade(type,cost){
- if(money<cost){
-  document.getElementById('upgradeInfo').textContent=
-  '돈이 부족해!';
-  return;
- }
-
- money-=cost;
-
- if(type==='expand'){
-  level++;
-  bonus+=500;
- }
-
- if(type==='shelf'){
-  stock+=10;
- }
-
- if(type==='auto'){
-  autoBonus+=300;
- }
-
- if(type==='staff'){
-  staff=true;
- }
-
- update();
-
- document.getElementById('upgradeInfo').textContent=
- '업그레이드 완료! 남은 돈: '+money.toLocaleString()+'원';
-
- toast('업그레이드 성공!');
-}
-
-// 게임 반복 실행
-const clock=new THREE.Clock();
-
-function animate(){
- requestAnimationFrame(animate);
-
- const dt=Math.min(clock.getDelta(),.04);
-
- if(locked&&!computerOpen){
-  const move=new THREE.Vector3();
-
-  const f=forward();
-  const r=new THREE.Vector3(
-   Math.cos(yaw),0,-Math.sin(yaw)
+function updatePlayer(){
+  const speed=0.09;
+  const forward=new THREE.Vector3(
+    -Math.sin(player.yaw),0,-Math.cos(player.yaw)
+  );
+  const right=new THREE.Vector3(
+    Math.cos(player.yaw),0,-Math.sin(player.yaw)
   );
 
-  if(keys.w)move.add(f);
-  if(keys.s)move.sub(f);
-  if(keys.d)move.add(r);
-  if(keys.a)move.sub(r);
+  if(keys.w) player.position.addScaledVector(forward,speed);
+  if(keys.s) player.position.addScaledVector(forward,-speed);
+  if(keys.a) player.position.addScaledVector(right,-speed);
+  if(keys.d) player.position.addScaledVector(right,speed);
 
-  if(move.lengthSq()>0){
-   move.normalize().multiplyScalar(5*dt);
-   camera.position.add(move);
+  player.position.x=Math.max(-9,Math.min(9,player.position.x));
+  player.position.z=Math.max(-9,Math.min(9,player.position.z));
 
-   camera.position.x=THREE.MathUtils.clamp(
-    camera.position.x,-10.8,10.8
-   );
+  camera.position.copy(player.position);
+  camera.rotation.order='YXZ';
+  camera.rotation.y=player.yaw;
+  camera.rotation.x=player.pitch;
+}
 
-   camera.position.z=THREE.MathUtils.clamp(
-    camera.position.z,-9.8,9.5
-   );
+function updateCustomers(){
+  for(const c of [...customers]){
+    const target=new THREE.Vector3(1,0,-4);
+
+    if(c.state==='enter'){
+      c.group.position.z-=0.035;
+      if(c.group.position.z< -1){
+        c.state='checkout';
+        currentCustomer=c;
+        say('손님이 도착했습니다! 상품을 스캔하세요.');
+      }
+    }
+
+    if(c.state==='leave'){
+      c.group.position.z+=0.045;
+      if(c.group.position.z>10){
+        scene.remove(c.group);
+        customers=customers.filter(x=>x!==c);
+        updateHUD();
+      }
+    }
   }
- }
+}
 
- camera.rotation.order='YXZ';
- camera.rotation.y=yaw;
- camera.rotation.x=pitch;
-
- // 들고 있는 상품은 카메라 앞에서 움직임
- if(held){
-  held.position.copy(camera.position)
-   .add(forward().multiplyScalar(1.2));
-  held.position.y=camera.position.y-.3;
- }
-
- // 손님 이동 애니메이션
- for(const c of customers3d){
-  const delta=c.target.clone().sub(c.group.position);
-
-  if(delta.length()>.1){
-   delta.normalize();
-   c.group.position.add(
-    delta.multiplyScalar(c.speed*dt)
-   );
-
-   c.group.rotation.y=Math.atan2(delta.x,delta.z);
-   c.phase+=dt*9;
-
-   c.legs[0].rotation.x=Math.sin(c.phase)*.5;
-   c.legs[1].rotation.x=-Math.sin(c.phase)*.5;
+function animate(){
+  requestAnimationFrame(animate);
+  if(gameStarted){
+    updatePlayer();
+    updateCustomers();
   }
- }
-
- renderer.render(scene,camera);
+  renderer.render(scene,camera);
 }
 
 animate();
-update();
 
-// 직원 자동 판매
-setInterval(()=>{
- if(staff&&stock>0){
-  stock--;
-  served++;
-  const gain=1800+autoBonus;
-  money+=gain;
-  update();
-  toast('직원이 자동 판매했어! +'+gain+'원');
- }
-},12000);
-
-// 화면 크기 대응
-window.addEventListener('resize',()=>{
- camera.aspect=innerWidth/innerHeight;
- camera.updateProjectionMatrix();
- renderer.setSize(innerWidth,innerHeight);
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
 });
 </script>
 </body>
